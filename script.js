@@ -100,8 +100,8 @@ const allAbilities = [
   { id:"ws90_10",  group:"その他", label:"白(特殊)", cost:90,  discount:"10%", value:85,  eff:0.9444, searchable:true },
   // ロックオン系
   { id:"lock280",  group:"その他", label:"ロックオン", cost:280, discount:null,  value:203, eff:0.7250, searchable:true },
-  { id:"lock252",  group:"その他", label:"ロックオン", cost:252, discount:"10%", value:259, eff:1.0278, searchable:true },
-  { id:"lock224",  group:"その他", label:"ロックオン", cost:224, discount:"20%", value:287, eff:1.2813, searchable:true },
+  { id:"lock266",  group:"その他", label:"ロックオン", cost:266, discount:"5%", value:203, eff:0.7631, searchable:true },
+  { id:"lock252",  group:"その他", label:"ロックオン", cost:252, discount:"10%", value:203, eff:0.8055, searchable:true },
   // 英雄白
   { id:"hero_w120",group:"その他", label:"英雄白", cost:120, discount:null,  value:102, eff:0.8500, searchable:true },
   { id:"hero_w114",group:"その他", label:"英雄白", cost:114, discount:"5%",  value:102, eff:0.8947, searchable:true },
@@ -133,17 +133,17 @@ const allAbilities = [
   { id:"cho_r102", group:"超虹", label:"超○○(虹)",  cost:102,discount:"15%",value:160,eff:1.5647,searchable:false },
   { id:"cho_r96",  group:"超虹", label:"超○○(虹)",  cost:96, discount:"20%",value:160,eff:1.6625,searchable:false },
   // 超○○(新規)
-  { id:"cho_n228", group:"超新規",label:"超○○(新規)",cost:228,discount:null, value:160,eff:0.7018,searchable:false },
-  { id:"cho_n216", group:"超新規",label:"超○○(新規)",cost:216,discount:null, value:160,eff:0.7407,searchable:false },
-  { id:"cho_n204", group:"超新規",label:"超○○(新規)",cost:204,discount:null, value:160,eff:0.7843,searchable:false },
+  { id:"cho_n228", group:"その他",label:"超○○(新規)",cost:228,discount:null, value:160,eff:0.7018,searchable:true },
+  { id:"cho_n216", group:"その他",label:"超○○(新規)",cost:216,discount:null, value:160,eff:0.7407,searchable:true },
+  { id:"cho_n204", group:"その他",label:"超○○(新規)",cost:204,discount:null, value:160,eff:0.7843,searchable:true },
   // 贖罪Ⅰ
   { id:"shok100",  group:"贖罪",label:"贖罪Ⅰ",    cost:100,discount:null,  value:60, eff:0.6000,searchable:false },
   { id:"shok95",   group:"贖罪",label:"贖罪Ⅰ",    cost:95, discount:"5%",  value:60, eff:0.6316,searchable:false },
   { id:"shok90",   group:"贖罪",label:"贖罪Ⅰ",    cost:90, discount:"10%", value:60, eff:0.6667,searchable:false },
   // 贖罪Ⅰ+Ⅱ
-  { id:"shok12_240",group:"贖罪",label:"贖罪Ⅰ+Ⅱ",cost:240,discount:null,  value:179,eff:0.7458,searchable:false },
-  { id:"shok12_216",group:"贖罪",label:"贖罪Ⅰ+Ⅱ",cost:216,discount:"10%",value:179,eff:0.8287,searchable:false },
-  { id:"shok12_192",group:"贖罪",label:"贖罪Ⅰ+Ⅱ",cost:192,discount:"20%",value:179,eff:0.9323,searchable:false },
+  { id:"shok12_240",group:"その他",label:"贖罪Ⅰ+Ⅱ",cost:240,discount:null,  value:179,eff:0.7458,searchable:true },
+  { id:"shok12_228",group:"その他",label:"贖罪Ⅰ+Ⅱ",cost:228,discount:"5%",value:179,eff:0.7850,searchable:true },
+  { id:"shok12_216",group:"その他",label:"贖罪Ⅰ+Ⅱ",cost:216,discount:"10%",value:179,eff:0.8287,searchable:true },
 ];
 
 // 探索対象のみ抽出
@@ -171,12 +171,16 @@ function renderAbilityList() {
   const container = document.getElementById('abilityList');
   let html = '';
 
-  searchGroups.forEach(grp => {
+  searchGroups.forEach((grp, idx) => {
     const items = searchAbilities.filter(a => a.group === grp.key);
     if (!items.length) return;
 
     html += `<div class="ability-group">
-      <span class="group-label ${grp.cls}">${grp.label}</span>`;
+      <div class="group-header" onclick="toggleGroup('grp_${idx}')">
+        <span class="group-label ${grp.cls}">${grp.label}</span>
+        <span class="group-toggle-icon" id="icon_grp_${idx}">▼</span>
+      </div>
+      <div class="group-content" id="grp_${idx}" style="display: none;">`;
 
     items.forEach(ab => {
       // 白+金はラベルなし（取得ptのみ）
@@ -199,10 +203,22 @@ function renderAbilityList() {
         </div>
       </div>`;
     });
-    html += `</div>`;
+    html += `</div></div>`;
   });
 
   container.innerHTML = html;
+}
+
+function toggleGroup(id) {
+  const content = document.getElementById(id);
+  const icon = document.getElementById('icon_' + id);
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    icon.textContent = '▲';
+  } else {
+    content.style.display = 'none';
+    icon.textContent = '▼';
+  }
 }
 
 function change(id, delta) {
@@ -215,6 +231,7 @@ function resetAll() {
   allAbilities.forEach(a => { counts[a.id] = 0; });
   renderAbilityList();
   document.getElementById('result').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============================================================
