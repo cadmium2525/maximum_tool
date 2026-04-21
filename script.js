@@ -98,10 +98,14 @@ const allAbilities = [
   { id:"ws100_0",  group:"その他", label:"白(特殊)", cost:100, discount:null,  value:85,  eff:0.8500, searchable:true },
   { id:"ws95_5",   group:"その他", label:"白(特殊)", cost:95,  discount:"5%",  value:85,  eff:0.8947, searchable:true },
   { id:"ws90_10",  group:"その他", label:"白(特殊)", cost:90,  discount:"10%", value:85,  eff:0.9444, searchable:true },
-  // ロックオン系
-  { id:"lock280",  group:"その他", label:"ロックオン", cost:280, discount:null,  value:203, eff:0.7250, searchable:true },
-  { id:"lock266",  group:"その他", label:"ロックオン", cost:266, discount:"5%", value:203, eff:0.7631, searchable:true },
-  { id:"lock252",  group:"その他", label:"ロックオン", cost:252, discount:"10%", value:203, eff:0.8055, searchable:true },
+  // ロックオン系(白)
+  { id:"lock_w140",  group:"その他", label:"ロックオン系(白)", cost:140, discount:null,  value:84, eff:0.6000, searchable:true },
+  { id:"lock_w133",  group:"その他", label:"ロックオン系(白)", cost:133, discount:"5%",  value:84, eff:0.6316, searchable:true },
+  { id:"lock_w126",  group:"その他", label:"ロックオン系(白)", cost:126, discount:"10%", value:84, eff:0.6667, searchable:true },
+  // ロックオン系(金+白)
+  { id:"lock_gw280", group:"その他", label:"ロックオン系(金+白)", cost:280, discount:null,  value:203, eff:0.7250, searchable:true },
+  { id:"lock_gw266", group:"その他", label:"ロックオン系(金+白)", cost:266, discount:"5%",  value:203, eff:0.7632, searchable:true },
+  { id:"lock_gw252", group:"その他", label:"ロックオン系(金+白)", cost:252, discount:"10%", value:203, eff:0.8056, searchable:true },
   // 英雄白
   { id:"hero_w120",group:"その他", label:"英雄白", cost:120, discount:null,  value:102, eff:0.8500, searchable:true },
   { id:"hero_w114",group:"その他", label:"英雄白", cost:114, discount:"5%",  value:102, eff:0.8947, searchable:true },
@@ -112,14 +116,14 @@ const allAbilities = [
   { id:"hero_gw180",group:"その他",label:"英雄金+白", cost:180, discount:null, value:204, eff:1.1333, searchable:true },
 
   // ======== 一覧のみ（searchable:false） ========
-  // ノラモン (代表データとして統合)
-  { id:"nb_10", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"10%", value:"変動", eff:1.1111, searchable:false },
-  { id:"nb_15", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"15%", value:"変動", eff:1.1765, searchable:false },
-  { id:"nb_20", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"20%", value:"変動", eff:1.2500, searchable:false },
-  { id:"nb_25", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"25%", value:"変動", eff:1.3333, searchable:false },
-  { id:"nb_30", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"30%", value:"変動", eff:1.4286, searchable:false },
-  { id:"nb_35", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"35%", value:"変動", eff:1.5385, searchable:false },
-  { id:"nb_40", group:"ノラモン", label:"ノラモン", cost:"変動", discount:"40%", value:"変動", eff:1.6667, searchable:false },
+  // ノラモン・ボスモン (代表データとして統合)
+  { id:"nb_10", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"10%", value:"変動", eff:1.1111, searchable:false },
+  { id:"nb_15", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"15%", value:"変動", eff:1.1765, searchable:false },
+  { id:"nb_20", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"20%", value:"変動", eff:1.2500, searchable:false },
+  { id:"nb_25", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"25%", value:"変動", eff:1.3333, searchable:false },
+  { id:"nb_30", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"30%", value:"変動", eff:1.4286, searchable:false },
+  { id:"nb_35", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"35%", value:"変動", eff:1.5385, searchable:false },
+  { id:"nb_40", group:"ノラモン・ボスモン", label:"ノラモン・ボスモン", cost:"変動", discount:"40%", value:"変動", eff:1.6667, searchable:false },
   // 調
   { id:"chou80",   group:"調", label:"調", cost:80, discount:null,  value:84, eff:1.0500, searchable:false },
   { id:"chou76",   group:"調", label:"調", cost:76, discount:"5%",  value:84, eff:1.1053, searchable:false },
@@ -164,6 +168,11 @@ const searchGroups = [
 const counts = {};
 allAbilities.forEach(a => counts[a.id] = 0);
 
+// リンク管理（id→リンク先idのSet）
+// リンクされた能力同士は「同じ実物」として扱い、組み合わせ計算から除外される
+const links = {}; // id → string (リンク先id) or null
+allAbilities.forEach(a => links[a.id] = null);
+
 // ============================================================
 // 能力リスト描画
 // ============================================================
@@ -189,6 +198,13 @@ function renderAbilityList() {
       const subLabel = !isWG && ab.label !== '白' && ab.label !== '金' && ab.label !== 'ひらめき'
         ? `<span class="ability-sublabel">${ab.label}</span>` : '';
 
+      const linkedId = links[ab.id];
+      const linkBtnLabel = linkedId ? '🔗' : '🔗';
+      const linkBtnTitle = linkedId
+        ? `リンク中: ${getAbilityShortName(linkedId)} — クリックで解除`
+        : 'この能力に含まれる部分能力をリンク';
+      const linkActive = linkedId ? 'link-btn-active' : '';
+
       html += `
       <div class="ability-row" id="row_${ab.id}">
         <div class="ability-info">
@@ -196,6 +212,7 @@ function renderAbilityList() {
           <span class="ability-cost">${ab.cost}pt</span>
           ${(!isWG && ab.discount) ? `<span class="ability-disc">${ab.discount}</span>` : ''}
         </div>
+        <button class="link-btn ${linkActive}" id="link_${ab.id}" title="${linkBtnTitle}" onclick="openLinkModal('${ab.id}')">${linkBtnLabel}</button>
         <div class="counter">
           <button class="counter-btn" onclick="change('${ab.id}',-1)">−</button>
           <div class="counter-val" id="cnt_${ab.id}">0</div>
@@ -228,10 +245,90 @@ function change(id, delta) {
 }
 
 function resetAll() {
-  allAbilities.forEach(a => { counts[a.id] = 0; });
+  allAbilities.forEach(a => { counts[a.id] = 0; links[a.id] = null; });
   renderAbilityList();
   document.getElementById('result').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// リンク機能
+// ============================================================
+function getAbilityShortName(id) {
+  const ab = allAbilities.find(a => a.id === id);
+  if (!ab) return id;
+  const disc = ab.discount ? `(${ab.discount})` : '';
+  return `${ab.label} ${ab.cost}pt${disc}`;
+}
+
+let _linkSourceId = null;
+
+function openLinkModal(sourceId) {
+  // すでにリンク済みならクリックで解除
+  if (links[sourceId]) {
+    const oldTarget = links[sourceId];
+    // 双方向解除
+    links[sourceId] = null;
+    links[oldTarget] = null;
+    refreshLinkBtn(sourceId);
+    refreshLinkBtn(oldTarget);
+    return;
+  }
+
+  _linkSourceId = sourceId;
+
+  // count > 0 の能力の中から sourceId 以外を列挙
+  const candidates = searchAbilities.filter(a =>
+    a.id !== sourceId && counts[a.id] > 0 && !links[a.id]
+  );
+
+  const srcName = getAbilityShortName(sourceId);
+  const listHtml = candidates.length === 0
+    ? `<p class="link-modal-empty">リンク可能な候補がありません。<br>他の能力の個数を1以上に設定してください。</p>`
+    : candidates.map(a => {
+        const disc = a.discount ? `<span class="ability-disc" style="font-size:10px;">${a.discount}</span>` : '';
+        return `<div class="link-candidate" onclick="applyLink('${a.id}')">
+          <span class="ability-sublabel" style="min-width:60px;">${a.label}</span>
+          <span class="ability-cost" style="font-size:13px;">${a.cost}pt</span>
+          ${disc}
+        </div>`;
+      }).join('');
+
+  document.getElementById('linkModalTitle').textContent = `「${srcName}」に含まれる部分能力を選択`;
+  document.getElementById('linkCandidateList').innerHTML = listHtml;
+  document.getElementById('linkOverlay').classList.add('open');
+}
+
+function applyLink(targetId) {
+  const src = _linkSourceId;
+  if (!src || !targetId) return;
+  // 双方向リンク
+  links[src] = targetId;
+  links[targetId] = src;
+  refreshLinkBtn(src);
+  refreshLinkBtn(targetId);
+  closeLinkModal();
+}
+
+function refreshLinkBtn(id) {
+  const btn = document.getElementById('link_' + id);
+  if (!btn) return;
+  const linkedId = links[id];
+  if (linkedId) {
+    btn.classList.add('link-btn-active');
+    btn.title = `リンク中: ${getAbilityShortName(linkedId)} — クリックで解除`;
+  } else {
+    btn.classList.remove('link-btn-active');
+    btn.title = 'この能力に含まれる部分能力をリンク';
+  }
+}
+
+function closeLinkModal() {
+  document.getElementById('linkOverlay').classList.remove('open');
+  _linkSourceId = null;
+}
+function closeLinkModalOnBg(e) {
+  if (e.target === document.getElementById('linkOverlay')) closeLinkModal();
 }
 
 // ============================================================
@@ -252,94 +349,306 @@ function calculate() {
     return;
   }
 
-  // アイテムを所持数分展開（各コピーを独立したアイテムとして扱う）
-  const expanded = [];
+  // リンクグループを収集（リンクされたidペアを1グループとして管理）
+  // グループ内では「合計で最大1個まで選択可能」という制約を追加する
+  // 実装: 各グループをまとめてGrouped Knapsackとして処理する
+  // グループ: [ {ab, maxK} ]  → この中から1個だけ選ぶか、全グループを0/1で独立扱い
+
+  // まず全アイテムをグループに振り分け
+  const processed = new Set();
+  const groups = []; // 各グループ = [ {ab, copies} ]  copiesは最大個数
+
   items.forEach(ab => {
-    const maxK = counts[ab.id];
-    for (let k = 0; k < maxK; k++) {
-      expanded.push(ab);
+    if (processed.has(ab.id)) return;
+    processed.add(ab.id);
+
+    const linkedId = links[ab.id];
+    if (linkedId && counts[linkedId] > 0 && !processed.has(linkedId)) {
+      // リンクあり: ab と linked の2アイテムで「どちらか一方のみ選べる」グループ
+      const linkedAb = allAbilities.find(a => a.id === linkedId);
+      processed.add(linkedId);
+      groups.push({
+        type: 'linked',
+        items: [
+          { ab, maxK: counts[ab.id] },
+          { ab: linkedAb, maxK: counts[linkedId] }
+        ]
+      });
+    } else {
+      // 独立アイテム
+      groups.push({
+        type: 'independent',
+        items: [{ ab, maxK: counts[ab.id] }]
+      });
     }
   });
 
-  const N = expanded.length;
+  // DP: Grouped Knapsack
+  // 各グループについて「そのグループから何をいくつ選ぶか」を処理
+  // linkedグループ: 2つのアイテムの中からどちらか（複数コピー可）を選ぶが
+  //   「両方を同時に選ぶ」ことは不可 → グループ内でどちらか一方のみ
+  // independentグループ: 所持数以内で何個でも選べる
 
-  // DP テーブル: dp[w] = 容量wで達成できる最大value
-  let dp = new Float64Array(W + 1); // 0で初期化
+  let dp = new Float64Array(W + 1);
+  // バックトラック用スナップショット: グループ単位で記録
+  const groupSnapshots = []; // [{ before: Float64Array }]
 
-  // バックトラック用:
-  // snapshots[ei] = アイテムeiを処理する「直前」のdpスナップショット
-  // これにより「アイテムeiを選んだかどうか」を判定できる
-  const snapshots = [];
+  groups.forEach(grp => {
+    groupSnapshots.push(new Float64Array(dp));
 
-  // 0/1ナップサック（逆順ループ）
-  for (let ei = 0; ei < N; ei++) {
-    // 処理前のdpをスナップショットとして保存
-    snapshots.push(new Float64Array(dp));
+    if (grp.type === 'independent') {
+      // 通常の0/1ナップサック（コピー展開）
+      grp.items[0];
+      const { ab, maxK } = grp.items[0];
+      const c = ab.cost;
+      const v = ab.value;
+      for (let k = 0; k < maxK; k++) {
+        for (let w = W; w >= c; w--) {
+          const nv = dp[w - c] + v;
+          if (nv > dp[w]) dp[w] = nv;
+        }
+      }
+    } else {
+      // linkedグループ: 両方同時選択禁止
+      // dpA = abのみコピー展開した場合、dpB = linkedAbのみコピー展開した場合
+      // それぞれを計算して、各容量でmax(dpA[w], dpB[w]) を取る
+      const base = new Float64Array(dp); // グループ処理前のdp
 
-    const ab = expanded[ei];
-    const c = ab.cost;
-    const v = ab.value;
-    // 逆順でループ（同一展開コピーの重複使用を防ぐ）
-    for (let w = W; w >= c; w--) {
-      const newVal = dp[w - c] + v;
-      if (newVal > dp[w]) {
-        dp[w] = newVal;
+      // パターンA: grp.items[0]のみ選べる
+      const dpA = new Float64Array(base);
+      const { ab: abA, maxK: maxKA } = grp.items[0];
+      for (let k = 0; k < maxKA; k++) {
+        for (let w = W; w >= abA.cost; w--) {
+          const nv = dpA[w - abA.cost] + abA.value;
+          if (nv > dpA[w]) dpA[w] = nv;
+        }
+      }
+
+      // パターンB: grp.items[1]のみ選べる
+      const dpB = new Float64Array(base);
+      const { ab: abB, maxK: maxKB } = grp.items[1];
+      for (let k = 0; k < maxKB; k++) {
+        for (let w = W; w >= abB.cost; w--) {
+          const nv = dpB[w - abB.cost] + abB.value;
+          if (nv > dpB[w]) dpB[w] = nv;
+        }
+      }
+
+      // パターンC: どちらも選ばない（base のまま）
+      for (let w = 0; w <= W; w++) {
+        dp[w] = Math.max(base[w], dpA[w], dpB[w]);
       }
     }
-  }
+  });
 
-  // 最大value を確認
   const bestVal = dp[W];
   if (bestVal === 0) {
     showMsg('所持ptが不足しています（最小コストのアイテムにも届きません）');
     return;
   }
 
-  // 同じ最大valueで消費ptが最小のwを探す（残ptを最大化）
+  // 最小消費ptでbestValを達成するwを探す
   let bestW = W;
   for (let w = 0; w <= W; w++) {
     if (dp[w] === bestVal) { bestW = w; break; }
   }
 
-  // バックトラックで使用アイテムを復元
-  // スナップショットを逆順に辿り、各アイテムコピーを「使ったか否か」を判定する
+  // バックトラック: グループ単位で逆順に辿る
   const usedMap = {};
   let cur = bestW;
-  // currentDp: 「今inspectしているアイテムeiの処理後」のdp状態
-  // 最初は「全アイテム処理後」の最終dp
-  let currentDp = dp;
-  for (let ei = N - 1; ei >= 0; ei--) {
-    const ab = expanded[ei];
-    const c = ab.cost;
-    const v = ab.value;
-    const prevDp = snapshots[ei]; // アイテムei処理「前」のdp
-    // cur容量で、このアイテムコピーを「選んだ」かどうかを判定:
-    // 選んだなら currentDp[cur] == prevDp[cur - c] + v
-    if (cur >= c && Math.abs(prevDp[cur - c] + v - currentDp[cur]) < 1e-9) {
-      // このコピーを選択したと判定
-      usedMap[ab.id] = (usedMap[ab.id] || 0) + 1;
-      cur = cur - c;
+
+  for (let gi = groups.length - 1; gi >= 0; gi--) {
+    const grp = groups[gi];
+    const before = groupSnapshots[gi];
+
+    if (grp.type === 'independent') {
+      const { ab, maxK } = grp.items[0];
+      const c = ab.cost;
+      const v = ab.value;
+      // このグループで何個選んだか逆算
+      let k = 0;
+      while (k < maxK && cur >= c && Math.abs(before[cur - c] + v - dp[cur]) < 1e-9) {
+        // 選んだ
+        usedMap[ab.id] = (usedMap[ab.id] || 0) + 1;
+        cur = cur - c;
+        k++;
+        // dp をbeforeに巻き戻すことはできないので、before[cur]をdpとして使用
+        // → 単一アイテムのコピー展開: 選んだ後は before[cur] が基準
+        dp = before; // 残りのグループはbeforeが正しいdp
+        // ここで break して次の k ループで再評価
+        // 実際はコピー展開を一個一個逆算する必要がある
+        // → 簡略化: グループ処理前のbeforeを基準に「何個選べるか」を貪欲に確認
+        break;
+      }
+      // 上記は単純化。正確には0/1ナップサックのバックトラックが必要。
+      // ここでは greedy approach で before基準で何個選んだかを計算する
+    } else {
+      // linkedグループ: どちらが選ばれたかを判定
+      const { ab: abA, maxK: maxKA } = grp.items[0];
+      const { ab: abB, maxK: maxKB } = grp.items[1];
+
+      // パターンA: abAを選んだ場合、cur >= abA.cost && before[cur-abA.cost]+abA.value == dp[cur]
+      // パターンB: abBを選んだ場合
+      // どちらも選ばない場合: dp[cur] == before[cur]
+
+      // dpA/dpB を再計算してどちらのパターンかを判定
+      const dpA = new Float64Array(before);
+      for (let k = 0; k < maxKA; k++) {
+        for (let w = cur; w >= abA.cost; w--) {
+          const nv = dpA[w - abA.cost] + abA.value;
+          if (nv > dpA[w]) dpA[w] = nv;
+        }
+      }
+      const dpB = new Float64Array(before);
+      for (let k = 0; k < maxKB; k++) {
+        for (let w = cur; w >= abB.cost; w--) {
+          const nv = dpB[w - abB.cost] + abB.value;
+          if (nv > dpB[w]) dpB[w] = nv;
+        }
+      }
+
+      if (Math.abs(dpA[cur] - dp[cur]) < 1e-9 && dpA[cur] >= dpB[cur]) {
+        // パターンA: abAを選んだ
+        let remaining = cur;
+        for (let k = 0; k < maxKA && remaining >= abA.cost; k++) {
+          if (Math.abs(before[remaining - abA.cost] + abA.value - dpA[remaining]) < 1e-9) {
+            usedMap[abA.id] = (usedMap[abA.id] || 0) + 1;
+            remaining -= abA.cost;
+          }
+        }
+        cur = remaining;
+      } else if (Math.abs(dpB[cur] - dp[cur]) < 1e-9) {
+        // パターンB: abBを選んだ
+        let remaining = cur;
+        for (let k = 0; k < maxKB && remaining >= abB.cost; k++) {
+          if (Math.abs(before[remaining - abB.cost] + abB.value - dpB[remaining]) < 1e-9) {
+            usedMap[abB.id] = (usedMap[abB.id] || 0) + 1;
+            remaining -= abB.cost;
+          }
+        }
+        cur = remaining;
+      }
+      // どちらも選ばない場合は cur 変化なし
+      dp = before;
     }
-    // 次のループはアイテムei-1の処理後 = アイテムeiの処理前 = prevDp
-    currentDp = prevDp;
   }
 
-  // 検証: 使用個数が所持数を超えていないか
-  for (const id in usedMap) {
-    if (usedMap[id] > counts[id]) {
-      showMsg('内部エラー: 所持数を超えた使用が検出されました');
-      return;
+  // バックトラックが単純化しているため、greedyで補完
+  // 実際には正確なバックトラックが必要なので以下で再実装
+  // → 上のバックトラックを使わず、グループ単位の正確なDPを再実装する
+  // ここで結果をshowResultで表示
+  // usedMapが不完全な可能性があるため、以下で再計算する
+
+  // ===== 正確なバックトラック再実装 =====
+  const usedMapFinal = {};
+  let dpFinal = new Float64Array(W + 1);
+  const snaps2 = [];
+
+  groups.forEach(grp => {
+    if (grp.type === 'independent') {
+      const { ab, maxK } = grp.items[0];
+      const c = ab.cost; const v = ab.value;
+      for (let k = 0; k < maxK; k++) {
+        snaps2.push({ grp, itemIdx: 0, copyIdx: k, dpBefore: new Float64Array(dpFinal) });
+        for (let w = W; w >= c; w--) {
+          const nv = dpFinal[w - c] + v;
+          if (nv > dpFinal[w]) dpFinal[w] = nv;
+        }
+      }
+    } else {
+      // linkedグループはまとめて1スナップ
+      const base2 = new Float64Array(dpFinal);
+      const { ab: abA, maxK: maxKA } = grp.items[0];
+      const { ab: abB, maxK: maxKB } = grp.items[1];
+      const dpA2 = new Float64Array(base2);
+      for (let k = 0; k < maxKA; k++) {
+        for (let w = W; w >= abA.cost; w--) {
+          const nv = dpA2[w - abA.cost] + abA.value;
+          if (nv > dpA2[w]) dpA2[w] = nv;
+        }
+      }
+      const dpB2 = new Float64Array(base2);
+      for (let k = 0; k < maxKB; k++) {
+        for (let w = W; w >= abB.cost; w--) {
+          const nv = dpB2[w - abB.cost] + abB.value;
+          if (nv > dpB2[w]) dpB2[w] = nv;
+        }
+      }
+      snaps2.push({ grp, dpBefore: base2, dpA: dpA2, dpB: dpB2 });
+      for (let w = 0; w <= W; w++) {
+        dpFinal[w] = Math.max(base2[w], dpA2[w], dpB2[w]);
+      }
+    }
+  });
+
+  const bestValF = dpFinal[W];
+  if (bestValF === 0) {
+    showMsg('所持ptが不足しています（最小コストのアイテムにも届きません）');
+    return;
+  }
+  let bestWF = W;
+  for (let w = 0; w <= W; w++) {
+    if (dpFinal[w] === bestValF) { bestWF = w; break; }
+  }
+
+  let curF = bestWF;
+  for (let si = snaps2.length - 1; si >= 0; si--) {
+    const snap = snaps2[si];
+    if (snap.grp.type === 'independent') {
+      const { ab } = snap.grp.items[0];
+      const c = ab.cost; const v = ab.value;
+      const before2 = snap.dpBefore;
+      if (curF >= c && Math.abs(before2[curF - c] + v - dpFinal[curF]) < 1e-9) {
+        usedMapFinal[ab.id] = (usedMapFinal[ab.id] || 0) + 1;
+        curF = curF - c;
+      }
+      dpFinal = before2;
+    } else {
+      // linked group snap (single snap for the whole group)
+      const { dpBefore, dpA: dpA3, dpB: dpB3, grp: g } = snap;
+      const { ab: abA } = g.items[0];
+      const { ab: abB } = g.items[1];
+
+      // 選ばれたパターンを判定
+      const valA = dpA3 ? dpA3[curF] : -1;
+      const valB = dpB3 ? dpB3[curF] : -1;
+      const valC = dpBefore[curF];
+
+      if (valA >= valB && valA >= valC && Math.abs(valA - dpFinal[curF]) < 1e-9) {
+        // abA選択: greedy backtrack
+        let rem = curF;
+        const maxK = g.items[0].maxK;
+        for (let k = 0; k < maxK && rem >= abA.cost; k++) {
+          if (Math.abs(dpBefore[rem - abA.cost] + abA.value - dpA3[rem]) < 1e-9) {
+            usedMapFinal[abA.id] = (usedMapFinal[abA.id] || 0) + 1;
+            rem -= abA.cost;
+          } else break;
+        }
+        curF = rem;
+      } else if (valB >= valA && valB >= valC && Math.abs(valB - dpFinal[curF]) < 1e-9) {
+        // abB選択
+        let rem = curF;
+        const maxK = g.items[1].maxK;
+        for (let k = 0; k < maxK && rem >= abB.cost; k++) {
+          if (Math.abs(dpBefore[rem - abB.cost] + abB.value - dpB3[rem]) < 1e-9) {
+            usedMapFinal[abB.id] = (usedMapFinal[abB.id] || 0) + 1;
+            rem -= abB.cost;
+          } else break;
+        }
+        curF = rem;
+      }
+      // どちらも選ばない場合curF変化なし
+      dpFinal = dpBefore;
     }
   }
 
-  // 使用ptの計算
   let verifyPt = 0;
-  for (const id in usedMap) {
+  for (const id in usedMapFinal) {
     const ab = allAbilities.find(a => a.id === id);
-    verifyPt += ab.cost * usedMap[id];
+    verifyPt += ab.cost * usedMapFinal[id];
   }
 
-  showResult(usedMap, W, bestVal, verifyPt);
+  showResult(usedMapFinal, W, bestValF, verifyPt);
 }
 
 // ============================================================
@@ -400,12 +709,25 @@ function showResult(usedMap, W, totalVal, usedPt) {
 // ============================================================
 const groupBadgeClass = {
   '白':'tb-白', '金':'tb-金', '白+金':'tb-白金',
-  'ノラモン':'tb-ノラモン', '調':'tb-調', '律':'tb-律',
+  'ノラモン':'tb-ノラモン', 'ノラモン・ボスモン':'tb-ノラモン', '調':'tb-調', '律':'tb-律',
   '超虹':'tb-超虹', '超新規':'tb-超新規',
   'ひらめき':'tb-ひらめき', 'その他':'tb-その他', '贖罪':'tb-贖罪',
 };
 
 function openModal() {
+  renderEfficiencyTab();
+  document.getElementById('modalOverlay').classList.add('open');
+  switchModalTab('efficiency');
+}
+
+function switchModalTab(tab) {
+  document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.modal-tab-content').forEach(c => c.style.display = 'none');
+  document.getElementById('tab-btn-' + tab).classList.add('active');
+  document.getElementById('tab-content-' + tab).style.display = 'block';
+}
+
+function renderEfficiencyTab() {
   const sorted = [...allAbilities].sort((a, b) => b.eff - a.eff);
   document.getElementById('modalTable').innerHTML = sorted.map(ab => {
     const pct = (ab.eff * 100).toFixed(2);
@@ -422,7 +744,29 @@ function openModal() {
       <td><span class="eff-value ${ec}">${pct}%</span></td>
     </tr>`;
   }).join('');
-  document.getElementById('modalOverlay').classList.add('open');
+}
+
+const baseReturnRates = [
+  { label: '律',            rate: 1.19,  cls: 'tb-律' },
+  { label: '調',            rate: 1.05,  cls: 'tb-調' },
+  { label: 'ノラモン・ボスモン', rate: 1.00, cls: 'tb-ノラモン' },
+  { label: '白（特殊）',    rate: 0.85,  cls: 'tb-白特殊' },
+  { label: '金',            rate: 0.85,  cls: 'tb-金' },
+  { label: 'ひらめき',      rate: 0.80,  cls: 'tb-ひらめき' },
+  { label: '白',            rate: 0.60,  cls: 'tb-白' },
+  { label: '超○○単独',    rate: 1.33,  cls: 'tb-超虹' },
+];
+
+function renderBaseRateTab() {
+  const sorted = [...baseReturnRates].sort((a, b) => b.rate - a.rate);
+  document.getElementById('baseRateTable').innerHTML = sorted.map(row => {
+    const pct = (row.rate * 100).toFixed(0) + '%';
+    const ec = row.rate >= 1.10 ? 'eff-high' : row.rate >= 0.85 ? 'eff-mid' : 'eff-low';
+    return `<tr>
+      <td><span class="type-badge ${row.cls}">${row.label}</span></td>
+      <td><span class="eff-value ${ec}">${pct}</span></td>
+    </tr>`;
+  }).join('');
 }
 
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }

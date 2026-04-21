@@ -40,26 +40,58 @@
   <div id="result"></div>
 </div>
 
-<!-- Modal -->
+<!-- Efficiency Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
   <div class="modal">
     <div class="modal-header">
       <h2>EFFICIENCY LIST</h2>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+    <div class="modal-tabs">
+      <button class="modal-tab-btn active" id="tab-btn-efficiency" onclick="switchModalTab('efficiency')">効率一覧</button>
+      <button class="modal-tab-btn" id="tab-btn-baserate" onclick="switchModalTab('baserate'); renderBaseRateTab()">基礎還元率</button>
+    </div>
     <div class="modal-body">
-      <table>
-        <thead>
-          <tr>
-            <th>種類</th>
-            <th>取得pt</th>
-            <th>割引率</th>
-            <th>総合力</th>
-            <th>効率</th>
-          </tr>
-        </thead>
-        <tbody id="modalTable"></tbody>
-      </table>
+      <div id="tab-content-efficiency" class="modal-tab-content">
+        <table>
+          <thead>
+            <tr>
+              <th>種類</th>
+              <th>取得pt</th>
+              <th>割引率</th>
+              <th>総合力</th>
+              <th>効率</th>
+            </tr>
+          </thead>
+          <tbody id="modalTable"></tbody>
+        </table>
+      </div>
+      <div id="tab-content-baserate" class="modal-tab-content" style="display:none;">
+        <p class="base-rate-desc">割引なし・1個取得時の基礎的な還元率です。</p>
+        <table>
+          <thead>
+            <tr>
+              <th>種類</th>
+              <th>基礎還元率</th>
+            </tr>
+          </thead>
+          <tbody id="baseRateTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Link Modal -->
+<div class="modal-overlay" id="linkOverlay" onclick="closeLinkModalOnBg(event)">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 id="linkModalTitle">部分能力をリンク</h2>
+      <button class="modal-close" onclick="closeLinkModal()">✕</button>
+    </div>
+    <div class="modal-body link-modal-body">
+      <p class="link-modal-hint">この能力に含まれる部分能力を選択してください。<br>リンクされた能力同士は計算で同時に選択されなくなります。</p>
+      <div id="linkCandidateList"></div>
     </div>
   </div>
 </div>
