@@ -33,11 +33,13 @@
     <div id="abilityList"></div>
   </div>
 
-  <div class="btn-row">
-    <button class="btn-primary" onclick="calculate()">▶ 最適な組み合わせを計算</button>
-  </div>
-  <div class="reset-link"><button onclick="resetAll()">すべてリセット</button></div>
   <div id="result"></div>
+  <div class="reset-link"><button onclick="resetAll()">すべてリセット</button></div>
+</div>
+
+<!-- 固定計算ボタン -->
+<div class="calc-bar">
+  <button class="btn-primary" onclick="calculate()">▶ 最適な組み合わせを計算</button>
 </div>
 
 <!-- Efficiency Modal -->
@@ -53,45 +55,49 @@
     </div>
     <div class="modal-body">
       <div id="tab-content-efficiency" class="modal-tab-content">
-        <table>
-          <thead>
-            <tr>
-              <th>種類</th>
-              <th>取得pt</th>
-              <th>割引率</th>
-              <th>総合力</th>
-              <th>効率</th>
-            </tr>
-          </thead>
-          <tbody id="modalTable"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table class="eff-table">
+            <thead>
+              <tr>
+                <th class="col-type">種類</th>
+                <th class="col-pt">取得pt</th>
+                <th class="col-disc">割引率</th>
+                <th class="col-val">総合力</th>
+                <th class="col-eff">効率</th>
+              </tr>
+            </thead>
+            <tbody id="modalTable"></tbody>
+          </table>
+        </div>
       </div>
       <div id="tab-content-baserate" class="modal-tab-content" style="display:none;">
         <p class="base-rate-desc">割引なし・1個取得時の基礎的な還元率です。</p>
-        <table>
-          <thead>
-            <tr>
-              <th>種類</th>
-              <th>基礎還元率</th>
-            </tr>
-          </thead>
-          <tbody id="baseRateTable"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table class="eff-table">
+            <thead>
+              <tr>
+                <th class="col-type">種類</th>
+                <th class="col-eff">基礎還元率</th>
+              </tr>
+            </thead>
+            <tbody id="baseRateTable"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Link Modal -->
-<div class="modal-overlay" id="linkOverlay" onclick="closeLinkModalOnBg(event)">
+<!-- 白+金 内訳選択モーダル -->
+<div class="modal-overlay" id="comboOverlay" onclick="closeComboModalOnBg(event)">
   <div class="modal modal-sm">
     <div class="modal-header">
-      <h2 id="linkModalTitle">部分能力をリンク</h2>
-      <button class="modal-close" onclick="closeLinkModal()">✕</button>
+      <h2 id="comboModalTitle">内訳を選択</h2>
+      <button class="modal-close" onclick="closeComboModal()">✕</button>
     </div>
-    <div class="modal-body link-modal-body">
-      <p class="link-modal-hint">この能力に含まれる部分能力を選択してください。<br>リンクされた能力同士は計算で同時に選択されなくなります。</p>
-      <div id="linkCandidateList"></div>
+    <div class="modal-body combo-modal-body">
+      <p class="combo-modal-hint">金＋白の内訳を選んでください。<br>選んだ白は排他制御され、白のみ取得するパターンと重複しません。</p>
+      <div id="comboOptionList"></div>
     </div>
   </div>
 </div>
@@ -109,6 +115,7 @@
         <li>このツールを使う場面は育成完了直前を想定しているので、高効率となる"ノラモン・ボス能力"や"律"、"調"はすでに取得済みであるという前提のもと組合せの計算からは除外しています。</li>
         <li>所持している能力ptと取得可能な能力を設定して組合せを計算ボタンを押すと最適な組み合わせが出力されます。</li>
         <li>白（特殊）は最近のモンスターの解放能力の[距離]与ダメ+5%、シナリオ能力、Exトレーニングで取得できるようになる能力を指します。</li>
+        <li>白＋金・ロックオン系(金+白)の＋ボタンを押すと内訳選択画面が開きます。金と白の内訳を指定することで、白のみ取得するパターンとの排他制御が自動で行われます。</li>
       </ul>
     </div>
   </div>
